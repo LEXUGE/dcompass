@@ -18,7 +18,7 @@ geoip-maxmind = ["droute/geoip-maxmind"]
 
 compact_str = { version = "^0.6", features = ["serde"]}
 async-trait = "^0.1"
-domain = {version = "^0.7", features = ["bytes"]}
+domain = {version = "^0.10", features = ["bytes"]}
 futures = "^0.3"
 tokio = { version = "^1", features = ["rt-multi-thread", "net", "fs", "macros", "io-util", "signal", "sync"]}
 simple_logger = "^4"
