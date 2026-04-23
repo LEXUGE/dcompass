@@ -14,7 +14,7 @@ pkgs.mkShell {
 
     gcc
     # write rustfmt first to ensure we are using nightly rustfmt
-    rust-bin.nightly."2024-01-01".rustfmt
+    rust-bin.nightly."2026-01-01".rustfmt
     rust-bin.stable.latest.default
     binutils-unwrapped
 

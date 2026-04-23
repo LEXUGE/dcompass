@@ -7,47 +7,63 @@
     utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { nixpkgs, rust-overlay, utils, ... }:
+  outputs =
+    {
+      nixpkgs,
+      rust-overlay,
+      utils,
+      ...
+    }:
     with nixpkgs.lib;
     let
-      pkgsWithRust = system:
+      pkgsWithRust =
+        system:
         import nixpkgs {
           system = "${system}";
           overlays = [ rust-overlay.overlays.default ];
         };
-      features = [ "geoip-maxmind" "geoip-cn" ];
-      forEachFeature = f:
-        builtins.listToAttrs (map
-          (v:
-            attrsets.nameValuePair "dcompass-${strings.removePrefix "geoip-" v}"
-              (f v))
-          features);
-      pkgSet = system:
-        forEachFeature (v:
+      features = [
+        "geoip-maxmind"
+        "geoip-cn"
+      ];
+      forEachFeature =
+        f:
+        builtins.listToAttrs (
+          map (v: attrsets.nameValuePair "dcompass-${strings.removePrefix "geoip-" v}" (f v)) features
+        );
+      pkgSet =
+        system:
+        forEachFeature (
+          v:
           with (pkgsWithRust system);
           (makeRustPlatform {
             # Pinning these for now as I have no time to update the dependencies to accommodate the latest stable version.
             cargo = rust-bin.stable."1.70.0".default;
             rustc = rust-bin.stable."1.70.0".default;
-          }).buildRustPackage {
-            name = "dcompass-${strings.removePrefix "geoip-" v}";
-            version = "git";
-            src = lib.cleanSource ./.;
-            cargoLock = {
-              lockFile = ./Cargo.lock;
-              outputHashes = {
-                "cidr-utils-0.5.7" =
-                  "sha256-Kyvq1R5o7csR2BGWj9oZ6J+96fSqNBXBB2m/79HjGbM=";
+          }).buildRustPackage
+            {
+              name = "dcompass-${strings.removePrefix "geoip-" v}";
+              version = "git";
+              src = lib.cleanSource ./.;
+              cargoLock = {
+                lockFile = ./Cargo.lock;
+                outputHashes = {
+                  "cidr-utils-0.5.7" = "sha256-Kyvq1R5o7csR2BGWj9oZ6J+96fSqNBXBB2m/79HjGbM=";
+                };
               };
-            };
-            # doCheck = false;
-            # ZSTD_SYS_USE_PKG_CONFIG = true;
-            # PKG_CONFIG_PATH = "${zstd}/lib";
+              # doCheck = false;
+              # ZSTD_SYS_USE_PKG_CONFIG = true;
+              # PKG_CONFIG_PATH = "${zstd}/lib";
 
-            cargoBuildFlags = [ "--features ${v}" ];
-            buildInputs = [ zstd ];
-            nativeBuildInputs = [ pkg-config openssl zstd ];
-          });
+              cargoBuildFlags = [ "--features ${v}" ];
+              buildInputs = [ zstd ];
+              nativeBuildInputs = [
+                pkg-config
+                openssl
+                zstd
+              ];
+            }
+        );
     in
     utils.lib.eachSystem
       (with utils.lib.system; [
@@ -60,10 +76,12 @@
         # `nix build`
         packages = (pkgSet system) // {
           # We have to do it like `nix develop .#commit` because libraries don't play well with `makeBinPath` or `makeLibraryPath`.
-          commit = (import ./commit.nix {
-            lib = utils.lib;
-            pkgs = (pkgsWithRust system);
-          });
+          commit = (
+            import ./commit.nix {
+              lib = utils.lib;
+              pkgs = (pkgsWithRust system);
+            }
+          );
         };
 
         # TODO: figure out a way to write it as packages.default
@@ -74,12 +92,16 @@
 
         # `nix run`
         apps = rec {
-          default = dcompass-maxmind;
+          # default = dcompass-maxmind;
           update = utils.lib.mkApp {
-            drv = with (pkgsWithRust system);
+            drv =
+              with (pkgsWithRust system);
               (writeShellApplication {
                 name = "dcompass-update-data";
-                runtimeInputs = [ wget gzip ];
+                runtimeInputs = [
+                  wget
+                  gzip
+                ];
                 text = ''
                   set -e
                   wget -O ./data/full.mmdb --show-progress https://github.com/Dreamacro/maxmind-geoip/releases/latest/download/Country.mmdb
@@ -89,17 +111,21 @@
                 '';
               });
           };
-        } // (forEachFeature (v:
+        }
+        // (forEachFeature (
+          v:
           utils.lib.mkApp {
             drv = packages."dcompass-${strings.removePrefix "geoip-" v}";
-          }));
+          }
+        ));
 
         # `nix develop`
-        devShells.default = with (pkgsWithRust system);
+        devShells.default =
+          with (pkgsWithRust system);
           mkShell {
             nativeBuildInputs = lib.flatten [
               # write rustfmt first to ensure we are using nightly rustfmt
-              rust-bin.nightly."2024-01-01".rustfmt
+              rust-bin.nightly."2026-01-01".rustfmt
               rust-bin.stable.latest.default
               rust-bin.stable.latest.rust-src
               rust-analyzer
@@ -117,19 +143,19 @@
               cargo-cache
               cargo-outdated
 
-              (if stdenv.isLinux then [ linuxPackages.perf ] else [ ])
+              (if stdenv.isLinux then [ perf ] else [ ])
 
               # perl
               # gnumake
             ];
           };
-      }) // {
+      })
+    // {
       # public key for dcompass.cachix.org
-      publicKey =
-        "dcompass.cachix.org-1:uajJEJ1U9uy/y260jBIGgDwlyLqfL1sD5yaV/uWVlbk=";
+      publicKey = "dcompass.cachix.org-1:uajJEJ1U9uy/y260jBIGgDwlyLqfL1sD5yaV/uWVlbk=";
 
       overlays.default = final: prev: {
-        dcompass = recurseIntoAttrs (pkgSet prev.pkgs.system);
+        dcompass = recurseIntoAttrs (pkgSet prev.pkgs.stdenv.hostPlatform.system);
       };
     };
 }

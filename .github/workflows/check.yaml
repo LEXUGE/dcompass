@@ -11,7 +11,7 @@ jobs:
     name: upload cachix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
@@ -32,8 +32,8 @@ jobs:
     name: Build all feature permutations
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -53,7 +53,7 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: actions-rs/install@v0.1
         with:
           crate: cargo-all-features
@@ -67,8 +67,8 @@ jobs:
     name: Benchmark
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
@@ -88,8 +88,8 @@ jobs:
     name: Clippy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v6
+      - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry

@@ -11,7 +11,7 @@ jobs:
     needs: create-release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           # Nix Flakes doesn't work on shallow clones
           fetch-depth: 0
@@ -34,7 +34,7 @@ jobs:
       date: ${{ steps.current_time.outputs.formattedTime }}
       log-num: ${{ steps.get_log.outputs.log-num }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Get current time
@@ -162,7 +162,7 @@ jobs:
     - name: Cargo update
       run: cargo update
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
