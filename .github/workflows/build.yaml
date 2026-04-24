@@ -159,8 +159,8 @@ jobs:
         version: latest
         use-tool-cache: true
 
-    - name: Cargo update
-      run: cargo update
+    # - name: Cargo update
+    #   run: cargo update
 
     - uses: actions/cache@v4
       with:
