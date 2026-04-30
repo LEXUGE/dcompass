@@ -21,7 +21,7 @@ rune-scripting = ["rune"]
 
 [dependencies]
 # DNS-implementation related dependencies
-domain = {version = "^0.7", features = ["bytes"]}
+domain = {version = "^0.10", features = ["bytes"]}
 bytes = "^1"
 
 # geoip
