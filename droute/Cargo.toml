@@ -25,7 +25,7 @@ domain = {version = "^0.7", features = ["bytes"]}
 bytes = "^1"
 
 # geoip
-maxminddb = "^0.23"
+maxminddb = "^0.27"
 
 # doh
 reqwest = { version = "0.11", features = ["socks"], default-features = false}
